@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MadMester - Settings Dashboard">
+    <title>MadMester - Settings</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Tailwind CSS (Production) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/a6631075be.js" crossorigin="anonymous"></script>
+
+    <!-- SweetAlert2 for Modern Alerts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(107, 114, 128, 0.5);
+            border-radius: 4px;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .active-link {
+            background-color: rgba(107, 114, 128, 0.2);
+            border-left: 4px solid #ff4500;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar w-72 bg-gray-800 text-white p-6 flex flex-col shadow-lg">
+        <header class="flex items-center justify-between mb-8">
+            <div class="text-3xl font-bold flex items-center gap-2">
+                <i class="fas fa-utensils text-yellow-400"></i>
+                MadMester
+            </div>
+        </header>
+        <nav class="flex-1 flex flex-col space-y-4">
+            <a href="/dashboard" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="home-link">
+                <i class="fas fa-home mr-3"></i> Home
+            </a>
+            <a href="/dashboard/settings.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all active-link" id="settings-link">
+                <i class="fas fa-cog mr-3"></i> Settings
+            </a>
+            <a href="/dashboard/preferences.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="preferences-link">
+                <i class="fas fa-sliders-h mr-3"></i> Preferences
+            </a>
+            <a href="/dashboard/family.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="family-link">
+                <i class="fas fa-users mr-3"></i> Family
+            </a>
+            <a href="/dashboard/help.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="help-link">
+                <i class="fas fa-question-circle mr-3"></i> Help
+            </a>
+        </nav>
+        <footer class="mt-auto">
+            <div class="flex items-center gap-3 p-3 bg-gray-700 rounded-lg">
+                <img src="https://via.placeholder.com/40" alt="Profile Picture" class="w-10 h-10 rounded-full">
+                <div>
+                    <p class="text-sm font-semibold">John Doe</p>
+                    <p class="text-sm">john.doe@example.com</p>
+                    <a href="/logout" class="text-sm text-red-400 hover:underline">Logout</a>
+                </div>
+            </div>
+        </footer>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Header Banner -->
+        <section class="header-banner bg-cover bg-center w-full h-60 flex items-center justify-center text-white text-4xl font-bold shadow-md relative"
+            style="background-image: url('https://images.unsplash.com/photo-1521302088000-4d3c8d7b0c68?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');">
+            <div id="welcome-message" class="z-10">Welcome to Settings</div>
+            <div class="absolute inset-0 bg-black opacity-50"></div>
+        </section>
+
+        <!-- Content Section -->
+        <section class="p-6 md:p-10 space-y-8">
+            <!-- Profile Settings -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 transition-all fade-in">
+                <h2 class="text-2xl font-semibold mb-4">Profile Settings</h2>
+                <form id="profile-form" class="space-y-6" novalidate>
+                    <div>
+                        <label for="username" class="block text-sm font-medium">Username</label>
+                        <input type="text" id="username" name="username" required
+                            class="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium">Email</label>
+                        <input type="email" id="email" name="email" required
+                            class="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium">Password</label>
+                        <input type="password" id="password" name="password"
+                            class="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password"
+                            class="mt-1 block w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-all">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 transition-all fade-in">
+                <h2 class="text-2xl font-semibold mb-4">Notification Settings</h2>
+                <form id="notification-form" class="space-y-6" novalidate>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="email-notifications" name="email-notifications"
+                            class="h-4 w-4 text-yellow-500 focus:ring-2 focus:ring-yellow-400">
+                        <label for="email-notifications" class="ml-2 text-sm">Email Notifications</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="sms-notifications" name="sms-notifications"
+                            class="h-4 w-4 text-yellow-500 focus:ring-2 focus:ring-yellow-400">
+                        <label for="sms-notifications" class="ml-2 text-sm">SMS Notifications</label>
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="push-notifications" name="push-notifications"
+                            class="h-4 w-4 text-yellow-500 focus:ring-2 focus:ring-yellow-400">
+                        <label for="push-notifications" class="ml-2 text-sm">Push Notifications</label>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-all">
+                            Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+<script src="js/settings.js"></script>
+</body>
+</html>

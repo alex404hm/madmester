@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MadMester - Family Management Dashboard">
+    <meta name="author" content="MadMester Team">
+    <meta name="keywords" content="family, management, dashboard, meal">
+    <title>MadMester - Family</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Tailwind CSS (Production version recommended) -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/a6631075be.js" crossorigin="anonymous"></script>
+
+    <!-- SweetAlert2 for Modern Alerts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(107, 114, 128, 0.5);
+            border-radius: 4px;
+        }
+
+        /* Smooth fade-in animation for forms */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Active Link Styling */
+        .active-link {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4f46e5;
+            color: #4f46e5;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 140px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -70px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Dark Mode Support */
+        body {
+            transition: background-color 0.3s, color 0.3s;
+            background-color: #1a202c;
+            color: #edf2f7;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar {
+            background-color: #2d3748;
+            color: #edf2f7;
+        }
+
+        .sidebar a {
+            font-size: 1rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .sidebar a:hover {
+            background-color: #4a5568;
+        }
+
+        .sidebar a.active-link {
+            background-color: #4c51bf;
+            color: #edf2f7;
+        }
+
+        /* Modern header banner styles */
+        .header-banner {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                        url('https://images.unsplash.com/photo-1521302088000-4d3c8d7b0c68?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center center no-repeat;
+            background-size: cover;
+            height: 50vh; /* Reduced height for a more compact look */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-banner h1 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        /* User Profile Section */
+        .user-profile {
+            background-color: #2d3748;
+            color: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .user-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .user-profile p {
+            font-size: 0.9rem;
+        }
+
+        .logout-button {
+            color: #e53e3e;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar w-72 text-white p-6 flex flex-col shadow-lg">
+        <header class="flex items-center justify-between mb-8">
+            <div class="text-3xl font-bold flex items-center gap-2">
+                <i class="fas fa-utensils text-yellow-400"></i>
+                MadMester
+            </div>
+        </header>
+        <nav class="flex-1 flex flex-col space-y-4">
+            <a href="dashboard.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="home-link" role="link" aria-label="Go to Home">
+                <i class="fas fa-home mr-3"></i> Home
+            </a>
+            <a href="settings.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="settings-link" role="link" aria-label="Go to Settings">
+                <i class="fas fa-cog mr-3"></i> Settings
+            </a>
+            <a href="preferences.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="preferences-link" role="link" aria-label="Go to Preferences">
+                <i class="fas fa-sliders-h mr-3"></i> Preferences
+            </a>
+            <a href="family.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all active-link" id="family-link" role="link" aria-label="Go to Family Page">
+                <i class="fas fa-users mr-3"></i> Family
+            </a>
+            <a href="help.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="help-link" role="link" aria-label="Go to Help">
+                <i class="fas fa-question-circle mr-3"></i> Help
+            </a>
+        </nav>
+
+        <!-- User Profile Section -->
+        <div class="user-profile">
+            <img src="https://via.placeholder.com/40" alt="User Avatar">
+            <p class="font-semibold">John Doe</p>
+            <p class="text-sm">john.doe@example.com</p>
+            <a href="#" class="logout-button">Logout</a>
+        </div>
+
+        <footer class="mt-auto text-center text-sm text-gray-400">
+            &copy; 2024 MadMester
+        </footer>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Header Banner -->
+        <section class="header-banner">
+            <h1>Welcome to MadMester</h1>
+        </section>
+
+        <!-- Content Section -->
+        <section class="p-6 md:p-10 space-y-8">
+            <!-- Family Information -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl fade-in">
+                <h2 class="text-2xl font-semibold mb-4">Family Details</h2>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                    <div class="flex items-center mb-4 md:mb-0">
+                        <i class="fas fa-users text-4xl text-yellow-400 mr-4"></i>
+                        <div>
+                            <p class="text-xl font-bold" id="family-name">Loading Family Name...</p>
+                            <p class="text-gray-500" id="family-members-count">Loading members...</p>
+                        </div>
+                    </div>
+                    <button id="add-member-button" class="flex items-center bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-all focus:outline-none">
+                        <i class="fas fa-user-plus mr-2"></i> Add Member
+                    </button>
+                </div>
+            </div>
+
+            <!-- Family Members List -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl fade-in">
+                <h2 class="text-2xl font-semibold mb-4">Family Members</h2>
+                <div id="family-members-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Family Member Card -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Member Modal -->
+    <div id="add-member-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 max-w-md relative">
+            <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-semibold text-center text-purple-700 mb-4">Add New Family Member</h2>
+            <form id="add-member-form" class="space-y-4">
+                <div>
+                    <label for="member-name" class="block text-sm font-medium text-gray-700">Name</label>
+                    <input type="text" id="member-name" name="memberName" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="Enter member's name">
+                </div>
+                <div>
+                    <label for="member-relation" class="block text-sm font-medium text-gray-700">Relation</label>
+                    <select id="member-relation" name="memberRelation" required
+                            class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 dark:text-white">
+                        <option value="" disabled selected>Select relation</option>
+                        <option value="Father">Father</option>
+                        <option value="Mother">Mother</option>
+                        <option value="Sibling">Sibling</option>
+                        <option value="Spouse">Spouse</option>
+                        <option value="Child">Child</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="member-foods" class="block text-sm font-medium text-gray-700">Favorite Foods</label>
+                    <input type="text" id="member-foods" name="memberFoods" required
+                           class="mt-1 block w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500 dark:bg-gray-700 dark:text-white"
+                           placeholder="Enter favorite foods separated by commas">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-all focus:outline-none">
+                        <i class="fas fa-plus mr-2"></i> Add Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/family.js"></script>
+</body>
+</html>

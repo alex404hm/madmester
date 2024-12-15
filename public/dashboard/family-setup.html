@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Set Up Your Family in Meal Plan Pro">
+    <title>Meal Plan Pro - Family Setup</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <!-- Tailwind CSS (Development Only) -->
+    <!-- For production, compile Tailwind locally as recommended -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- SweetAlert2 for Modern Alerts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(107, 114, 128, 0.5);
+            border-radius: 4px;
+        }
+
+        /* Smooth fade-in animation for forms */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        /* Tooltip for better user guidance */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 140px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the element */
+            left: 50%;
+            margin-left: -70px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-gray-200 text-gray-800 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full mx-4 fade-in">
+        <h1 class="text-3xl font-bold text-center text-purple-700 mb-6">Family Setup</h1>
+
+        <!-- Notification Area (Hidden as we're using SweetAlert2) -->
+        <!-- <div id="notification" class="hidden mb-4 p-4 rounded-lg" role="alert"></div> -->
+
+        <!-- Tabs for Join/Create Family -->
+        <div class="flex border-b border-gray-200 mb-6">
+            <button id="join-tab" class="flex-1 py-2 text-center text-gray-700 font-medium border-b-2 border-transparent hover:text-purple-600 focus:outline-none" aria-selected="false">
+                Join a Family
+            </button>
+            <button id="create-tab" class="flex-1 py-2 text-center text-gray-700 font-medium border-b-2 border-transparent hover:text-purple-600 focus:outline-none" aria-selected="false">
+                Create a Family
+            </button>
+        </div>
+
+        <!-- Join a Family Form -->
+        <form id="join-family-form" class="space-y-4 hidden" novalidate>
+            <div>
+                <label for="family-code" class="block text-sm font-medium text-gray-700">Family Code</label>
+                <input type="text" id="family-code" name="familyCode" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="Enter your family code" aria-describedby="family-code-error">
+                <p class="mt-1 text-sm text-red-500 hidden" id="family-code-error">Family code is required.</p>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300 flex items-center justify-center">
+                <span id="join-submit-text">Join Family</span>
+                <svg id="join-submit-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <!-- Create a Family Form -->
+        <form id="create-family-form" class="space-y-4 hidden" novalidate>
+            <!-- Step 1: Family Name -->
+            <div id="step-1">
+                <label for="family-name" class="block text-sm font-medium text-gray-700">Family Name</label>
+                <input type="text" id="family-name" name="familyName" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="Enter your family name" aria-describedby="family-name-error">
+                <p class="mt-1 text-sm text-red-500 hidden" id="family-name-error">Family name is required.</p>
+            </div>
+
+            <!-- Step 2: Number of Family Members -->
+            <div id="step-2" class="hidden">
+                <label for="family-size" class="block text-sm font-medium text-gray-700">Number of Family Members</label>
+                <input type="number" id="family-size" name="familySize" required min="1"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       placeholder="Enter number of family members" aria-describedby="family-size-error">
+                <p class="mt-1 text-sm text-red-500 hidden" id="family-size-error">Please enter a valid number of family members.</p>
+            </div>
+
+            <div class="flex justify-between">
+                <button type="button" id="back-button" class="hidden bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-300">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </button>
+                <button type="submit" id="create-submit-button"
+                        class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300 flex items-center">
+                    <span id="create-submit-text">Next</span>
+                    <svg id="create-submit-spinner" class="hidden animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal Popup for Family Share Code -->
+    <div id="share-code-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-11/12 max-w-md relative">
+            <button id="close-modal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-semibold text-center text-purple-700 mb-4">Your Family Share Code</h2>
+            <div class="flex items-center justify-center mb-4">
+                <span id="family-share-code" class="text-4xl font-bold text-purple-600">XXXX</span>
+            </div>
+            <div class="flex justify-center">
+                <button id="copy-code" class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-300">
+                    <i class="fas fa-copy mr-2"></i> Copy Code
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/family-setup.js"></script>
+</body>
+</html>

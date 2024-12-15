@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="da" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Madpræferencer - MadMester Dashboard">
+    <title>Madpræferencer - MadMester Dashboard</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- Font Awesome Kit -->
+    <script src="https://kit.fontawesome.com/a6631075be.js" crossorigin="anonymous"></script>
+
+    <!-- SweetAlert2 for Modern Alerts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(107, 114, 128, 0.5);
+            border-radius: 4px;
+        }
+
+        /* Smooth fade-in animation for form */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Active link styling */
+        .active-link {
+            background-color: rgba(79, 70, 229, 0.2);
+            color: #4f46e5 !important;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #d1d5db;
+            border-radius: 5px;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar div {
+            height: 100%;
+            background-color: #4c51bf;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        /* Focus outline for input fields */
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4c51bf;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 h-screen flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="sidebar w-72 bg-gray-800 text-gray-100 p-6 flex flex-col shadow-lg">
+        <header class="flex items-center justify-between mb-8">
+            <div class="text-3xl font-bold flex items-center gap-2">
+                <i class="fas fa-utensils text-yellow-400"></i>
+                MadMester
+            </div>
+        </header>
+        <nav class="flex-1 flex flex-col space-y-4">
+            <a href="dashboard.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="home-link">
+                <i class="fas fa-home mr-3"></i> Hjem
+            </a>
+            <a href="settings.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="settings-link">
+                <i class="fas fa-cog mr-3"></i> Indstillinger
+            </a>
+            <a href="preferences.html" class="flex items-center p-3 rounded-lg bg-gray-700 active-link transition-all" id="preferences-link">
+                <i class="fas fa-sliders-h mr-3"></i> Præferencer
+            </a>
+            <a href="family.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="family-link">
+                <i class="fas fa-users mr-3"></i> Familie
+            </a>
+            <a href="help.html" class="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-all" id="help-link">
+                <i class="fas fa-question-circle mr-3"></i> Hjælp
+            </a>
+        </nav>
+        <footer class="mt-auto">
+            <p class="text-sm text-gray-400">&copy; 2024 MadMester</p>
+        </footer>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Header Banner -->
+        <section class="header-banner bg-cover bg-center w-full h-60 flex items-center justify-center text-white text-4xl font-bold shadow-md relative"
+            style="background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');">
+            <div id="welcome-message" class="z-10">Velkommen til MadMester</div>
+            <!-- Overlay for better text readability -->
+            <div class="absolute inset-0 bg-black opacity-50"></div>
+        </section>
+
+        <!-- Content Section -->
+        <section class="p-6 md:p-10 space-y-8">
+            <!-- Multi-Step Form -->
+            <div class="bg-gray-800 rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl fade-in">
+                <h2 class="text-2xl font-semibold mb-4">Indstil dine madpræferencer</h2>
+                <!-- Progress Bar -->
+                <div class="progress-bar mb-6">
+                    <div id="progress-bar-fill" style="width: 20%"></div>
+                </div>
+                <form id="preferences-form" class="space-y-6">
+                    <!-- Questions will be dynamically rendered here -->
+                    <div id="form-steps"></div>
+
+                    <!-- Navigation Button -->
+                    <div class="flex justify-end">
+                        <button type="button" id="next-button" class="bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 focus:outline-none transition-all">
+                            Næste
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript for Dynamic Form Generation and Saving Data to Local Storage -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const questions = [
+                {
+                    category: "Personlige Oplysninger",
+                    questions: [
+                        { label: "Hvilken aldersgruppe tilhører du?", name: "ageGroup", type: "select", options: ["Barn (0-12 år)", "Teenager (13-19 år)", "Voksen (20-64 år)", "Ældre (65+ år)"] },
+                        { label: "Hvad er dit køn?", name: "gender", type: "select", options: ["Mand", "Kvinde", "Andet"] }
+                    ]
+                },
+                {
+                    category: "Diæt og Kostbehov",
+                    questions: [
+                        { label: "Har du nogen specifikke diætbehov eller præferencer?", name: "diet", type: "select", options: ["Ingen diætbegrænsninger", "Vegan", "Vegetar", "Glutenfri", "Laktosefri", "Lavkarbo", "Andet"] },
+                        { label: "Er der nogen fødevarer, du vil undgå?", name: "avoidFood", type: "text", placeholder: "Fx Ost, Svampe, Skaldyr" }
+                    ]
+                },
+                {
+                    category: "Madpræferencer",
+                    questions: [
+                        { label: "Hvilke proteinkilder foretrækker du?", name: "proteinSource", type: "select", options: ["Kød", "Fisk", "Vegetarisk", "Andet"] },
+                        { label: "Hvilke grøntsager er dine favoritter?", name: "favoriteVegetables", type: "text", placeholder: "Fx Broccoli, Gulerødder" }
+                    ]
+                }
+            ];
+
+            let currentStep = 0;
+            const totalSteps = questions.length;
+            const nextButton = document.getElementById('next-button');
+            const progressBarFill = document.getElementById('progress-bar-fill');
+            const formSteps = document.getElementById('form-steps');
+            let formData = {};
+
+            function renderQuestions(stepIndex) {
+                formSteps.innerHTML = ''; // Clear previous content
+
+                const category = questions[stepIndex];
+                const categoryTitle = document.createElement('h3');
+                categoryTitle.classList.add('text-xl', 'font-semibold', 'mb-4');
+                categoryTitle.textContent = category.category;
+                formSteps.appendChild(categoryTitle);
+
+                category.questions.forEach(q => {
+                    const questionContainer = document.createElement('div');
+                    questionContainer.classList.add('mb-6');
+
+                    const label = document.createElement('label');
+                    label.classList.add('text-sm', 'font-medium', 'text-gray-300');
+                    label.textContent = q.label;
+                    questionContainer.appendChild(label);
+
+                    let inputField;
+                    if (q.type === 'select') {
+                        inputField = document.createElement('select');
+                        inputField.name = q.name;
+                        inputField.classList.add('w-full', 'p-3', 'mt-2', 'bg-gray-700', 'text-gray-100', 'rounded-md');
+                        q.options.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option;
+                            optionElement.textContent = option;
+                            inputField.appendChild(optionElement);
+                        });
+                    } else if (q.type === 'text') {
+                        inputField = document.createElement('input');
+                        inputField.type = 'text';
+                        inputField.name = q.name;
+                        inputField.placeholder = q.placeholder || '';
+                        inputField.classList.add('w-full', 'p-3', 'mt-2', 'bg-gray-700', 'text-gray-100', 'rounded-md');
+                    }
+
+                    questionContainer.appendChild(inputField);
+                    formSteps.appendChild(questionContainer);
+                });
+            }
+
+            function updateProgressBar(stepIndex) {
+                const progress = ((stepIndex + 1) / totalSteps) * 100;
+                progressBarFill.style.width = `${progress}%`;
+            }
+
+            function saveFormData() {
+                const formElements = formSteps.querySelectorAll('input, select');
+                formElements.forEach(input => {
+                    formData[input.name] = input.value;
+                });
+                localStorage.setItem('userPreferences', JSON.stringify(formData));
+            }
+
+            function goToNextStep() {
+                if (currentStep < totalSteps - 1) {
+                    currentStep++;
+                    renderQuestions(currentStep);
+                    updateProgressBar(currentStep);
+                } else {
+                    saveFormData();
+                    Swal.fire({
+                        title: 'Præferencer gemt!',
+                        text: 'Dine præferencer er blevet gemt.',
+                        icon: 'success',
+                        confirmButtonText: 'Okay'
+                    });
+                    console.log(JSON.parse(localStorage.getItem('userPreferences')));
+                }
+            }
+
+            // Enable Enter key for next step
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    goToNextStep();
+                }
+            });
+
+            nextButton.addEventListener('click', goToNextStep);
+
+            renderQuestions(currentStep);
+            updateProgressBar(currentStep);
+        });
+    </script>
+</body>
+</html>

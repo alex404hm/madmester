@@ -1,0 +1,21 @@
+{
+  "name": "madplan",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "express-validator": "^7.2.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9",
+    "sanitize-html": "^2.13.1"
+  }
+}

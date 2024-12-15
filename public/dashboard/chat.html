@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MadMester Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-screen flex items-center justify-center">
+
+  <!-- Chat UI Container -->
+  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg w-full max-w-4xl flex flex-col h-5/6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary to-blue-600 p-4 rounded-t-lg flex items-center justify-between text-white">
+      <h1 class="text-lg font-semibold">MadMester Chat</h1>
+      <button class="text-sm hover:text-gray-200" onclick="clearChat()">Ryd Chat</button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-700">
+      <!-- Messages dynamically added here -->
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-4 bg-gray-100 dark:bg-gray-700 flex items-center space-x-3">
+      <textarea id="userInput" placeholder="Skriv dit svar her..."
+        class="flex-1 resize-none bg-white dark:bg-gray-600 rounded-lg shadow px-4 py-2 text-sm focus:outline-none"
+        onkeydown="handleKeydown(event)"
+      ></textarea>
+      <button onclick="sendMessage()" class="bg-primary text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-400">
+        Send
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "http://127.0.0.1:11434/api/chat";
+    const questions = [
+      "Hvilken aldersgruppe tilhører du? 🧒👨‍🦱👩‍🦳",
+      "Har du nogen specifikke kostbehov eller diætbegrænsninger? 🌱🍞🍗",
+      "Er der fødevarer, du helst vil undgå? 🚫🍤🍆",
+      "Hvilke proteinkilder foretrækker du mest? 🍗🥩🐟🌱",
+      "Hvilke grøntsager elsker du at spise? 🥦🥕🍅",
+      "Hvilken type retter gør dig glad? 🍕🍣🍝",
+      "Hvilken smag foretrækker du i dine måltider? 🌶️🍋🍯",
+      "Har du en favoritmad til særlige lejligheder? 🎉🍰",
+      "Hvilke køkkenredskaber bruger du mest? 🍳🔪",
+      "Er der nogen sundhedsmæssige hensyn, jeg skal tage højde for? 💪🥗"
+    ];
+    let currentQuestionIndex = 0;
+    const answers = [];
+
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const startOverBtn = document.createElement('button');
+    startOverBtn.textContent = 'Start Over';
+    startOverBtn.className = 'hidden bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 focus:ring-2 focus:ring-red-400';
+    startOverBtn.onclick = startNewSession;
+    document.body.appendChild(startOverBtn);
+
+    // Initialize chat
+    async function startChat() {
+      const systemPrompt = {
+        role: "system",
+        content: `Du er MadMester, en venlig og hjælpsom AI, der indsamler brugerens madpræferencer og foreslår tilpassede retter. Start med at stille spørgsmål ét ad gangen. Her er spørgsmålene:
+        ${questions.join('\n')}`
+      };
+      await sendToAI(systemPrompt, false);
+      await showNextQuestion();
+    }
+
+    // Display the next question
+    async function showNextQuestion() {
+      if (currentQuestionIndex < questions.length) {
+        addMessage(questions[currentQuestionIndex], false);
+      } else {
+        finalizeChat();
+      }
+    }
+
+    // Add a message to the chat
+    function addMessage(content, isUser) {
+      const message = document.createElement('div');
+      message.className = `p-3 rounded-lg shadow ${
+        isUser
+          ? 'bg-primary text-white self-end'
+          : 'bg-gray-300 dark:bg-gray-600 text-black dark:text-gray-200 self-start'
+      }`;
+      message.textContent = content;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+      wrapper.appendChild(message);
+
+      chatContainer.appendChild(wrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight; // Auto-scroll to bottom
+    }
+
+    // Handle user input
+    async function handleInput(answer) {
+      addMessage(answer, true); // Show user's answer
+      answers.push({ question: questions[currentQuestionIndex], answer }); // Save answer
+
+      currentQuestionIndex++;
+      await showNextQuestion(); // Proceed to next question
+
+      // Send user's answer to AI
+      await sendToAI({ role: "user", content: answer });
+    }
+
+    // Finalize the chat
+    function finalizeChat() {
+      addMessage("Tak for dine svar! Genererer din personlige madprofil...", false);
+      const jsonBlob = new Blob([JSON.stringify(answers, null, 2)], { type: "application/json" });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(jsonBlob);
+      link.download = "madmester_svar.json";
+      link.textContent = "Download dine svar her.";
+      link.className = "block mt-4 text-blue-500 hover:underline text-sm";
+
+      const wrapper = document.createElement('div');
+      wrapper.className = "mt-4";
+      wrapper.appendChild(link);
+      chatContainer.appendChild(wrapper);
+      startOverBtn.classList.remove('hidden');
+    }
+
+    // Send a message to AI
+    async function sendToAI(message, isUser) {
+      const tempId = `temp-${Date.now()}`;
+      if (!isUser) addMessage('...', false, tempId);
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "llama3.2:latest",
+            messages: [message],
+          }),
+        });
+
+        const data = await response.json();
+        if (data.message?.content) {
+          if (!isUser) updateMessage(tempId, data.message.content);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (error) {
+        console.error("AI Error:", error);
+        if (!isUser) updateMessage(tempId, "AI svar mislykkedes.");
+      }
+    }
+
+    // Update a message in the chat
+    function updateMessage(tempId, content) {
+      const tempMessage = document.getElementById(tempId);
+      if (tempMessage) {
+        tempMessage.textContent = content;
+        tempMessage.removeAttribute('id');
+      }
+    }
+
+    // Handle Enter key
+    function handleKeydown(event) {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // Send message
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message) {
+        handleInput(message);
+        userInput.value = ''; // Clear input
+      }
+    }
+
+    // Clear chat
+    function clearChat() {
+      chatContainer.innerHTML = '';
+      startOverBtn.classList.remove('hidden');
+    }
+
+    // Start a new session
+    function startNewSession() {
+      currentQuestionIndex = 0;
+      answers.length = 0;
+      startOverBtn.classList.add('hidden');
+      startChat();
+    }
+
+    // Start chat on page load
+    window.onload = startChat;
+  </script>
+</body>
+</html>
